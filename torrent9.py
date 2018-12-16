@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import os
+import sys
 import argparse
 import gettext
 import logging
@@ -9,7 +10,7 @@ import urllib
 from datetime import datetime
 
 domain="https://www.torrents9.pw"
-search_url="%s/recherche/" % (domain)
+search_url="%s/recherche" % (domain)
 
 logger = logging.getLogger("default")
 logger.setLevel(logging.DEBUG)
@@ -40,7 +41,7 @@ def findAllTorrents(url):
     haveToContinue = True
     while haveToContinue:
         logger.debug("connect")
-        pageSoup = bs(requests.get(url).content)
+        pageSoup = bs(requests.get(url).content, 'html.parser')
         # We search all the link
         for i, aTd in enumerate(pageSoup.findAll('td')):
             aLink = aTd.find('a')
@@ -76,17 +77,17 @@ def analyzePageTorrent(link) :
     if linkTorrent :
         urlTorrent = "%s/%s" % (domain, linkTorrent.get('href'))
         torrentFile = requests.get(urlTorrent).content
-        fp = open(link['name'], 'w')
+        fp = open("%s.torrent" % (link['name']), 'w')
         fp.write(torrentFile)
         fp.close()
 
 
-mySearch = "%s/%s" % (search_url, urllib.quote_plus("the walking dead S09"))
-print mySearch
-torrentsLinks = findAllTorrents(mySearch)
 
 
-for link in torrentsLinks:
-    analyzePageTorrent(link)
 
-
+if __name__ == "__main__":
+    mySearch = "%s/%s" % (search_url, urllib.quote_plus(sys.argv[1]))
+    print mySearch
+    torrentsLinks = findAllTorrents(mySearch)
+    for link in torrentsLinks:
+        analyzePageTorrent(link)
