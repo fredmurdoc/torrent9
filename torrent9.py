@@ -83,11 +83,23 @@ def analyzePageTorrent(link) :
 
 
 
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('-s', dest='search', help='proceed only a search')
+parser.add_argument('-t', dest='title', help='title to download')
 
-
+args = parser.parse_args()
+print(args)
 if __name__ == "__main__":
-    mySearch = "%s/%s" % (search_url, urllib.quote_plus(sys.argv[1]))
-    print mySearch
-    torrentsLinks = findAllTorrents(mySearch)
-    for link in torrentsLinks:
-        analyzePageTorrent(link)
+    if args.search:
+        mySearch = "%s/%s" % (search_url, urllib.quote_plus(args.search))
+        print mySearch
+        torrentsLinks = findAllTorrents(mySearch)
+        print("\n".join(map(lambda x : x['name'], torrentsLinks)))
+    if args.title:
+        mySearch = "%s/%s" % (search_url, urllib.quote_plus(args.title))
+        print mySearch
+        torrentsLinks = findAllTorrents(mySearch)
+        print("\n".join(map(lambda x : x['name'], torrentsLinks)))
+    
+        for link in torrentsLinks:
+            analyzePageTorrent(link)
